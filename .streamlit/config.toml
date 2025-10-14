@@ -1,3 +1,5 @@
+[server]
+pythonVersion = "3.10"
 [theme]
 primaryColor = "#9370DB"
 backgroundColor = "#A182A8"
