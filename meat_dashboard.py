@@ -204,12 +204,40 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">Meat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Système d\'analyse avancé pour déterminer la fraîcheur de la viande</p>', unsafe_allow_html=True)
 
-# charge le modèle
+# Fonction pour télécharger et charger le modèle
 @st.cache_resource
-def load_classification_model():
-    return load_model('meat_fresh_model.keras')
+def download_and_load_model():
+    """Télécharge le modèle depuis Google Drive et le charge"""
+    # URL de votre modèle sur Google Drive
+    # Assurez-vous que le lien est configuré pour "Tout le monde avec le lien peut voir"
+    model_url = "https://drive.google.com/uc?export=download&id=1vdUbchh57RRHv0WI1NcOzQF1k6jVo4-J"
+    
+    # Vérifiez si le modèle existe déjà localement
+    local_model_path = 'meat_fresh_model.keras'
+    if os.path.exists(local_model_path):
+        return load_model(local_model_path)
+    
+    try:
+        # Créez un fichier temporaire pour télécharger le modèle
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.keras') as tmp_file:
+            st.info("Téléchargement du modèle en cours... Veuillez patienter.")
+            urllib.request.urlretrieve(model_url, tmp_file.name)
+            st.success("Modèle téléchargé avec succès!")
+            # Charger le modèle depuis le fichier temporaire
+            model = load_model(tmp_file.name)
+            return model
+    except Exception as e:
+        st.error(f"Erreur lors du téléchargement du modèle: {e}")
+        return None
 
-model = load_classification_model()
+# Remplacez l'appel à load_classification_model() par:
+try:
+    model = download_and_load_model()
+    if model is None:
+        st.warning("Mode démonstration activé - le modèle n'a pas pu être chargé.")
+except Exception as e:
+    st.error(f"Erreur lors du chargement du modèle: {e}")
+    model = None
 
 # sectionn principale
 st.markdown('<div class="container">', unsafe_allow_html=True)
