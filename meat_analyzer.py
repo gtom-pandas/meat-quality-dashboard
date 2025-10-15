@@ -5,6 +5,8 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import load_model
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import gdown
 
 # config de la page
 st.set_page_config(
@@ -175,7 +177,23 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
+# Fonction pour télécharger le modèle depuis Google Drive
+@st.cache_resource
+def download_model_from_gdrive():
+    # Créer un dossier models s'il n'existe pas
+    os.makedirs('models', exist_ok=True)
+    model_path = 'models/meat_classifier_model.keras'
+    
+    # Vérifier si le modèle existe déjà localement
+    if not os.path.exists(model_path):
+        with st.spinner('Téléchargement du modèle depuis Google Drive...'):
+            # URL de partage Google Drive du modèle (doit être accessible au public)
+            # Remplacez l'URL ci-dessous par l'URL de partage de votre modèle
+            gdrive_url = 'https://drive.google.com/uc?id=1_UbYuTnVHCBxMoLCaXdhmmjE-N-eog-l'
+            # Télécharger le fichier
+            gdown.download(gdrive_url, model_path, quiet=False)
+    
+    return model_path
 # barre latérale
 with st.sidebar:
     st.image("https://institut-agro-dijon.fr/fileadmin/user_upload/INSTITUT-DIJON-MARQUE-ETAT.svg", width=200)
@@ -204,12 +222,18 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">Meat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Système d\'analyse avancé pour déterminer la fraîcheur de la viande</p>', unsafe_allow_html=True)
 
-# charge le modèle
+# Charge le modèle depuis Google Drive
 @st.cache_resource
 def load_classification_model():
-    return load_model('meat_fresh_model.keras')
+    model_path = download_model_from_gdrive()
+    return load_model(model_path)
 
-model = load_classification_model()
+try:
+    model = load_classification_model()
+    model_loaded = True
+except Exception as e:
+    st.error(f"Erreur lors du chargement du modèle: {e}")
+    model_loaded = False
 
 # sectionn principale
 st.markdown('<div class="container">', unsafe_allow_html=True)
@@ -225,8 +249,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # pour DL les photos à analyser
 uploaded_file = st.file_uploader("Choisissez une image de viande à analyser...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
+# Pour le traitement de l'image et la prédiction
+if uploaded_file is not None and model_loaded:
     # display de l'image + analyse
     col1, col2 = st.columns([1, 1])
     
@@ -274,8 +298,10 @@ if uploaded_file is not None:
                 st.success("""
                 **Recommandation**: Cette viande semble être fraîche et propre à la consommation.
                 
-                N'oubliez pas de la conserver correctement et de la cuisiner à une température adéquate.
+                N'oubliez pas de la conserver correctement et de la cuisire à une température adéquate.
                 """)
+elif uploaded_file is not None and not model_loaded:
+    st.error("Le modèle n'a pas pu être chargé. Veuillez réessayer plus tard.")
 
 # infos complémentaires
 if not uploaded_file:
@@ -284,12 +310,12 @@ if not uploaded_file:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("C:\\Users\\UTGR0501\\Python_Pandas\\images_dataset_meat\\Fresh\\test_20171016_104321D.jpg", 
+        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-detection/main/examples/fresh_example.jpg", 
                  caption="Exemple: Viande fraîche")
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
-        st.image("C:\\Users\\UTGR0501\\Python_Pandas\\images_dataset_meat\\Spoiled\\test_20171019_030921D.jpg", 
+        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-detection/main/examples/spoiled_example.jpg", 
                  caption="Exemple: Viande avariée")
         st.error("Cette viande serait classifiée comme avariée")
 
