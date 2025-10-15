@@ -32,7 +32,18 @@ st.markdown("""
         background-position: 0 0, 0 0, 10px 0, 10px 0, 0 0, 0 0;
     }
     
+    /* Supprimer TOUTES les barres blanches */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        display: none !important;
+    }
+    
     /* Supprimer les marges inutiles et espaces blancs */
+    .main .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
     .st-emotion-cache-z5fcl4 {
         padding-top: 0 !important;
         margin-top: 0 !important;
@@ -40,6 +51,11 @@ st.markdown("""
     
     /* Masquer les éléments blancs inutiles */
     .st-emotion-cache-18ni7ap {
+        display: none !important;
+    }
+    
+    /* Masquer le header Streamlit */
+    .css-18e3th9, .css-1dp5vir {
         display: none !important;
     }
     
@@ -205,16 +221,23 @@ st.markdown("""
         color: white !important;
     }
     
-    /* Personnaliser la progress bar */
-    .stProgress > div > div {
-        background-color: rgba(60, 30, 70, 0.9) !important;
-        background-image: 
-            linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, 
-            rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%) !important;
-        background-size: 20px 20px !important;
+    /* Personnaliser la progress bar - Plus visible */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #27AE60 0%, #1E8449 100%) !important;
     }
+    
+    .stProgress > div > div > div {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .stProgress > div > div {
+        background-color: transparent !important;
+    }
+    
     .stProgress {
-        height: 20px !important;
+        height: 25px !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -391,7 +414,7 @@ if uploaded_file is not None and model_loaded and model is not None:
     
     with col1:
         st.markdown("### Image analysée")
-        st.image(uploaded_file, caption='Échantillon de viande', use_column_width=True)  # Changé use_container_width -> use_column_width
+        st.image(uploaded_file, caption='Échantillon de viande', use_container_width=True)  # Changé use_container_width -> use_column_width
     
     with col2:
         st.markdown("### Résultats de l'analyse")
@@ -452,13 +475,13 @@ if not uploaded_file:
     with col1:
         st.image("https://imgur.com/a/EsSwBjC", 
                  caption="Exemple: Viande fraîche",
-                 use_column_width=True) 
+                 use_container_width=True) 
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
         st.image("https://imgur.com/a/yaSv0M0", 
                  caption="Exemple: Viande avariée",
-                 use_column_width=True)  
+                 use_container_width=True)  
         st.error("Cette viande serait classifiée comme avariée")
 
 st.markdown('</div>', unsafe_allow_html=True)
