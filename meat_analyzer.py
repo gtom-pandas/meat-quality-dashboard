@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from huggingface_hub import hf_hub_download  
+from huggingface_hub import hf_hub_download
 
 # config de la page
 st.set_page_config(
@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# déco 
+# déco avec CSS amélioré
 st.markdown("""
 <style>
     /* Fond principal avec motifs */
@@ -32,13 +32,24 @@ st.markdown("""
         background-position: 0 0, 0 0, 10px 0, 10px 0, 0 0, 0 0;
     }
     
+    /* Supprimer les marges inutiles et espaces blancs */
+    .st-emotion-cache-z5fcl4 {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Masquer les éléments blancs inutiles */
+    .st-emotion-cache-18ni7ap {
+        display: none !important;
+    }
+    
     /* Style du tableau de bord */
     .main-title {
         text-align: center;
         color: white;
         font-size: 3rem;
         margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, #614385 0%, #516395 100%);  /* Plus foncé */
+        background: linear-gradient(135deg, #614385 0%, #516395 100%);
         padding: 1.5rem;
         border-radius: 15px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -51,7 +62,7 @@ st.markdown("""
         color: #F0E6F5;
         font-size: 1.3rem;
         margin-bottom: 2rem;
-        background-color: rgba(60, 30, 70, 0.9);  /* Corrigé virgule -> point */
+        background-color: rgba(60, 30, 70, 0.9);
         padding: 0.8rem;
         border-radius: 10px;
     }
@@ -105,14 +116,16 @@ st.markdown("""
     .instructions {
         background-color: #F0E6F5;
         background-image: 
-            linear-gradient(45deg, rgba(161, 130, 168, 0.1) 25%, transparent 25%, transparent 50%, 
-            rgba(161, 130, 168, 0.1) 50%, rgba(161, 130, 168, 0.1) 75%, transparent 75%);
+            linear-gradient(45deg, rgba(161, 130, 168, 0.2) 25%, transparent 25%, transparent 50%, 
+            rgba(161, 130, 168, 0.2) 50%, rgba(161, 130, 168, 0.2) 75%, transparent 75%);
         background-size: 20px 20px;
         padding: 1.8rem;
         border-radius: 10px;
         margin: 1.2rem 0;
         border: 1px solid #D5C5DB;
         box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        color: #333;
+        font-weight: 500;
     }
     
     .info-block {
@@ -157,7 +170,7 @@ st.markdown("""
         font-size: 0.9rem;
     }
     
-    /* Style de la sidebar - NOUVEAU */
+    /* Style de la sidebar */
     .css-1d391kg, .css-1lcbmhc, .css-12oz5g7 {
         background-color: rgba(60, 30, 70, 0.9) !important;
     }
@@ -168,17 +181,14 @@ st.markdown("""
         background-color: rgba(60, 30, 70, 0.9) !important;
         color: white !important;
     }
-    .st-emotion-cache-16txtl3, .st-emotion-cache-16idsys p {
-        color: white !important;
-    }
-    
-    /* Styles supplémentaires pour la sidebar */
     section[data-testid="stSidebar"] > div {
         background-color: rgba(60, 30, 70, 0.9) !important;
     }
     section[data-testid="stSidebar"] .st-bq {
         background-color: rgba(80, 45, 90, 0.7) !important;
     }
+    
+    /* Mieux cibler le texte de la sidebar */
     section[data-testid="stSidebar"] h1, 
     section[data-testid="stSidebar"] h2, 
     section[data-testid="stSidebar"] h3, 
@@ -190,36 +200,33 @@ st.markdown("""
         color: white !important;
     }
     
-    /* Personnalisation des composants Streamlit */
-    .stButton button {
-        background: linear-gradient(135deg, #7A5F82 0%, #9370DB 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Améliorer les styles des info-blocks */
+    .st-emotion-cache-16idsys p {
+        color: white !important;
     }
     
-    .stProgress .st-bo {
-        background-color: #9370DB;
+    /* Personnaliser la progress bar */
+    .stProgress > div > div {
+        background-color: rgba(60, 30, 70, 0.9) !important;
+        background-image: 
+            linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, 
+            rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%) !important;
+        background-size: 20px 20px !important;
     }
-    
-    .stTextInput input, .stSelectbox select {
-        border-radius: 8px;
-        border: 1px solid #D5C5DB;
+    .stProgress {
+        height: 20px !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# télécharger le modèle
+# dl le modele depuis huggingface
 @st.cache_resource
 def download_model_from_huggingface():
     """Télécharge le modèle depuis Hugging Face Hub"""
     os.makedirs('models', exist_ok=True)
     model_path = 'models/meat_classifier_model.keras'
     
-    # vérif si le modèle existe déjà localement
+    # verif if le modèle existe déjà localement
     if not os.path.exists(model_path):
         with st.spinner('Téléchargement du modèle depuis Hugging Face...'):
             try:
@@ -238,7 +245,9 @@ def download_model_from_huggingface():
                 return model_path
             except Exception as e:
                 st.error(f"Erreur lors du téléchargement du modèle depuis Hugging Face: {e}")
-                raise e
+                import traceback
+                st.error(traceback.format_exc())
+                raise
     else:
         return model_path
 
@@ -270,15 +279,35 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">Meat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Système d\'analyse avancé pour déterminer la fraîcheur de la viande</p>', unsafe_allow_html=True)
 
-
+# Charge le modèle depuis Hugging
+@st.cache_resource
 def load_classification_model():
-    model_path = download_model_from_huggingface()  
+    try:
+        model_path = download_model_from_huggingface()
+        st.info(f"Chargement du modèle depuis {model_path}...")
+        model = load_model(model_path)
+        st.success("Modèle chargé avec succès!")
+        return model
+    except Exception as e:
+        st.error(f"Erreur lors du chargement du modèle: {e}")
+        
+        import traceback
+        st.error(traceback.format_exc())
+        return None
+
 
 try:
+    
+    st.text("Initialisation du modèle...")
     model = load_classification_model()
-    model_loaded = True
+    if model is not None:
+        model_loaded = True
+    else:
+        model_loaded = False
+        st.error("Le modèle n'a pas pu être chargé (valeur None retournée).")
 except Exception as e:
-    st.error(f"Erreur lors du chargement du modèle: {e}")
+    st.error(f"Exception lors du chargement du modèle: {e}")
+    model = None
     model_loaded = False
 
 # section principale
@@ -297,13 +326,13 @@ st.markdown('</div>', unsafe_allow_html=True)
 uploaded_file = st.file_uploader("Choisissez une image de viande à analyser...", type=["jpg", "jpeg", "png"])
 
 # Pour le traitement de l'image et la prédiction
-if uploaded_file is not None and model_loaded:
+if uploaded_file is not None and model_loaded and model is not None:
     # display de l'image + analyse
     col1, col2 = st.columns([1, 1])
     
     with col1:
         st.markdown("### Image analysée")
-        st.image(uploaded_file, caption='Échantillon de viande', use_column_width=True)
+        st.image(uploaded_file, caption='Échantillon de viande', use_column_width=True)  # Changé use_container_width -> use_column_width
     
     with col2:
         st.markdown("### Résultats de l'analyse")
@@ -313,57 +342,64 @@ if uploaded_file is not None and model_loaded:
             # simul de délai pour montrer le spinner :)
             time.sleep(1)
             
-            # Prépare l'image pour la prédiction
+            # prepare l'image pour la prédiction
             img = image.load_img(uploaded_file, target_size=(128, 128))
             img_array = image.img_to_array(img) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
-            prediction = model.predict(img_array)
-            confidence = prediction[0][0]
             
-            # Affichage du résultat avec une barre de confiance
-            is_spoiled = confidence >= 0.5
-            confidence_pct = confidence * 100 if is_spoiled else (1 - confidence) * 100
-            
-            if is_spoiled:
-                st.markdown('<div class="prediction-spoiled">⚠️ VIANDE AVARIÉE</div>', unsafe_allow_html=True)
-                bar_color = "#E74C3C"
-            else:
-                st.markdown('<div class="prediction-fresh">✅ VIANDE FRAÎCHE</div>', unsafe_allow_html=True)
-                bar_color = "#27AE60"
-            
-            st.markdown(f"### Niveau de confiance: {confidence_pct:.1f}%")
-            st.progress(float(confidence_pct/100))
-            
-            # afficher des recommandations basées sur le résultat
-            if is_spoiled:
-                st.error("""
-                **Recommandation**: Cette viande présente des signes de détérioration et ne devrait pas être consommée.
+            # verif à nouveau que model n'est pas None
+            if model is not None:
+                prediction = model.predict(img_array)
+                confidence = prediction[0][0]
                 
-                Veuillez la jeter de manière appropriée pour éviter tout risque sanitaire.
-                """)
-            else:
-                st.success("""
-                **Recommandation**: Cette viande semble être fraîche et propre à la consommation.
+                # display du résultat avec une barre de confiance
+                is_spoiled = confidence >= 0.5
+                confidence_pct = confidence * 100 if is_spoiled else (1 - confidence) * 100
                 
-                N'oubliez pas de la conserver correctement et de la cuire à une température adéquate.
-                """)
+                if is_spoiled:
+                    st.markdown('<div class="prediction-spoiled">⚠️ VIANDE AVARIÉE</div>', unsafe_allow_html=True)
+                    bar_color = "#E74C3C"
+                else:
+                    st.markdown('<div class="prediction-fresh">✅ VIANDE FRAÎCHE</div>', unsafe_allow_html=True)
+                    bar_color = "#27AE60"
+                
+                st.markdown(f"### Niveau de confiance: {confidence_pct:.1f}%")
+                st.progress(float(confidence_pct/100))
+                
+                # Afficher des reco basées sur le résultat
+                if is_spoiled:
+                    st.error("""
+                    **Recommandation**: Cette viande présente des signes de détérioration et ne devrait pas être consommée.
+                    
+                    Veuillez la jeter de manière appropriée pour éviter tout risque sanitaire.
+                    """)
+                else:
+                    st.success("""
+                    **Recommandation**: Cette viande semble être fraîche et propre à la consommation.
+                    
+                    N'oubliez pas de la conserver correctement et de la cuisiner à une température adéquate.
+                    """)
+            else:
+                st.error("Le modèle n'est pas disponible pour faire des prédictions.")
 elif uploaded_file is not None and not model_loaded:
     st.error("Le modèle n'a pas pu être chargé. Veuillez réessayer plus tard.")
 
 # infos complémentaires
 if not uploaded_file:
-    # exemple 
+    # Utiliser des URLs Imgur fiables - a fix pour la prochaine version de l'app :)
     st.markdown("### Exemples de classification")
     
     col1, col2 = st.columns(2)
     with col1:
         st.image("https://i.imgur.com/7XtTxHe.jpeg", 
-                 caption="Exemple: Viande fraîche")
+                 caption="Exemple: Viande fraîche",
+                 use_column_width=True) 
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
         st.image("https://i.imgur.com/qAvg8kO.jpeg", 
-                 caption="Exemple: Viande avariée")
+                 caption="Exemple: Viande avariée",
+                 use_column_width=True)  
         st.error("Cette viande serait classifiée comme avariée")
 
 st.markdown('</div>', unsafe_allow_html=True)
