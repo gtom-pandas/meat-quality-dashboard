@@ -285,12 +285,32 @@ def load_classification_model():
     try:
         model_path = download_model_from_huggingface()
         st.info(f"Chargement du modèle depuis {model_path}...")
-        model = load_model(model_path)
+        
+        # Essayer plusieurs méthodes de chargement
+        try:
+            # Méthode 1: Chargement standard
+            model = load_model(model_path)
+        except Exception as e1:
+            st.warning(f"Échec du chargement standard, tentative sans compilation...")
+            try:
+                # Méthode 2: Chargement sans compilation
+                model = load_model(model_path, compile=False)
+                # Recompiler manuellement
+                model.compile(
+                    optimizer='adam',
+                    loss='binary_crossentropy',
+                    metrics=['accuracy']
+                )
+            except Exception as e2:
+                st.error(f"Échec de toutes les méthodes de chargement")
+                import traceback
+                st.error(traceback.format_exc())
+                return None
+        
         st.success("Modèle chargé avec succès!")
         return model
     except Exception as e:
         st.error(f"Erreur lors du chargement du modèle: {e}")
-        
         import traceback
         st.error(traceback.format_exc())
         return None
@@ -391,13 +411,13 @@ if not uploaded_file:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("https://i.imgur.com/7XtTxHe.jpeg", 
+        st.image("https://imgur.com/a/EsSwBjC", 
                  caption="Exemple: Viande fraîche",
                  use_column_width=True) 
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
-        st.image("https://i.imgur.com/qAvg8kO.jpeg", 
+        st.image("https://imgur.com/a/yaSv0M0", 
                  caption="Exemple: Viande avariée",
                  use_column_width=True)  
         st.error("Cette viande serait classifiée comme avariée")
