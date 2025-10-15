@@ -117,7 +117,7 @@ st.markdown("""
     
     .info-block {
         background-color: rgba(60, 30, 70, 0.9);
-        color: white;  /* Ajouté pour la lisibilité */
+        color: white;
         background-image: 
             repeating-linear-gradient(45deg, rgba(161, 130, 168, 0.05) 0px, rgba(161, 130, 168, 0.05) 2px,
             transparent 2px, transparent 4px);
@@ -150,11 +150,44 @@ st.markdown("""
     .footer {
         text-align: center;
         color: white;
-        background-color: rgba(60, 30, 70, 0.9);  /* Plus foncé */
+        background-color: rgba(60, 30, 70, 0.9);
         padding: 1rem;
         border-radius: 10px;
         margin-top: 2rem;
         font-size: 0.9rem;
+    }
+    
+    /* Style de la sidebar - NOUVEAU */
+    .css-1d391kg, .css-1lcbmhc, .css-12oz5g7 {
+        background-color: rgba(60, 30, 70, 0.9) !important;
+    }
+    .sidebar .sidebar-content {
+        background-color: rgba(60, 30, 70, 0.9) !important;
+    }
+    div[data-testid="stSidebar"] {
+        background-color: rgba(60, 30, 70, 0.9) !important;
+        color: white !important;
+    }
+    .st-emotion-cache-16txtl3, .st-emotion-cache-16idsys p {
+        color: white !important;
+    }
+    
+    /* Styles supplémentaires pour la sidebar */
+    section[data-testid="stSidebar"] > div {
+        background-color: rgba(60, 30, 70, 0.9) !important;
+    }
+    section[data-testid="stSidebar"] .st-bq {
+        background-color: rgba(80, 45, 90, 0.7) !important;
+    }
+    section[data-testid="stSidebar"] h1, 
+    section[data-testid="stSidebar"] h2, 
+    section[data-testid="stSidebar"] h3, 
+    section[data-testid="stSidebar"] h4, 
+    section[data-testid="stSidebar"] h5, 
+    section[data-testid="stSidebar"] h6, 
+    section[data-testid="stSidebar"] p, 
+    section[data-testid="stSidebar"] li {
+        color: white !important;
     }
     
     /* Personnalisation des composants Streamlit */
@@ -270,7 +303,7 @@ if uploaded_file is not None and model_loaded:
     
     with col1:
         st.markdown("### Image analysée")
-        st.image(uploaded_file, caption='Échantillon de viande', use_container_width=True)
+        st.image(uploaded_file, caption='Échantillon de viande', use_column_width=True)
     
     with col2:
         st.markdown("### Résultats de l'analyse")
