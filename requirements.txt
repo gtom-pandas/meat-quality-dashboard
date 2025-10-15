@@ -4,3 +4,4 @@ pillow==10.2.0
 matplotlib==3.8.2
 numpy==1.26.1
 gdown==4.7.3
+huggingface-hub==0.20.3

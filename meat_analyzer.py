@@ -51,7 +51,7 @@ st.markdown("""
         color: #F0E6F5;
         font-size: 1.3rem;
         margin-bottom: 2rem;
-        background-color: rgba(80, 45, 90, 0.7);
+        background-color: rgba(60, 30, 70, 0,9);
         padding: 0.8rem;
         border-radius: 10px;
     }
@@ -116,7 +116,7 @@ st.markdown("""
     }
     
     .info-block {
-        background-color: rgba(240, 230, 245, 0.9);
+        background-color: rgba(60, 30, 70, 0.9);
         background-image: 
             repeating-linear-gradient(45deg, rgba(161, 130, 168, 0.05) 0px, rgba(161, 130, 168, 0.05) 2px,
             transparent 2px, transparent 4px);
@@ -178,20 +178,23 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 # Fonction pour télécharger le modèle depuis Google Drive
+# Remplacez la fonction download_model_from_gdrive par celle-ci:
 @st.cache_resource
-def download_model_from_gdrive():
-    # Créer un dossier models s'il n'existe pas
+def download_model():
+    import os
+    from huggingface_hub import hf_hub_download
+    
     os.makedirs('models', exist_ok=True)
     model_path = 'models/meat_classifier_model.keras'
     
-    # Vérifier si le modèle existe déjà localement
     if not os.path.exists(model_path):
-        with st.spinner('Téléchargement du modèle depuis Google Drive...'):
-            # URL de partage Google Drive du modèle (doit être accessible au public)
-            # Remplacez l'URL ci-dessous par l'URL de partage de votre modèle
-            gdrive_url = 'https://drive.google.com/uc?id=1_UbYuTnVHCBxMoLCaXdhmmjE-N-eog-l'
-            # Télécharger le fichier
-            gdown.download(gdrive_url, model_path, quiet=False)
+        with st.spinner('Téléchargement du modèle...'):
+            # Remplacez par votre nom d'utilisateur et le nom de votre dépôt
+            model_path = hf_hub_download(
+                repo_id="soooro/meat-classifier",
+                filename="meat_classifier_model.keras",
+                local_dir="models"
+            )
     
     return model_path
 # barre latérale
@@ -310,12 +313,12 @@ if not uploaded_file:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-detection/main/examples/fresh_example.jpg", 
+        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-dashboard/main/examples/fresh_example.jpg", 
                  caption="Exemple: Viande fraîche")
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
-        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-detection/main/examples/spoiled_example.jpg", 
+        st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-dashboard/main/examples/spoiled_example.jpg", 
                  caption="Exemple: Viande avariée")
         st.error("Cette viande serait classifiée comme avariée")
 
