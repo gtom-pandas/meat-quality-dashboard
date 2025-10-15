@@ -1,7 +1,7 @@
 streamlit==1.34.0
-tensorflow==2.15.0
+tensorflow==2.20.0
 pillow==10.2.0
 matplotlib==3.8.2
-numpy==1.26.1
+numpy==1.26.4
 gdown==4.7.3
 huggingface-hub==0.20.3

@@ -279,6 +279,34 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">Meat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Système d\'analyse avancé pour déterminer la fraîcheur de la viande</p>', unsafe_allow_html=True)
 
+# Créer un modèle de secours compatible
+def create_fallback_model():
+    """Crée un modèle simple compatible en cas d'échec du téléchargement"""
+    from tensorflow import keras
+    
+    model = keras.Sequential([
+        keras.layers.Input(shape=(224, 224, 3)),
+        keras.layers.Rescaling(1./255),
+        keras.layers.Conv2D(32, 3, activation='relu'),
+        keras.layers.MaxPooling2D(),
+        keras.layers.Conv2D(64, 3, activation='relu'),
+        keras.layers.MaxPooling2D(),
+        keras.layers.Conv2D(128, 3, activation='relu'),
+        keras.layers.MaxPooling2D(),
+        keras.layers.Flatten(),
+        keras.layers.Dense(128, activation='relu'),
+        keras.layers.Dropout(0.5),
+        keras.layers.Dense(1, activation='sigmoid')
+    ])
+    
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    return model
+
 # Charge le modèle depuis Hugging
 @st.cache_resource
 def load_classification_model():
@@ -290,6 +318,8 @@ def load_classification_model():
         try:
             # Méthode 1: Chargement standard
             model = load_model(model_path)
+            st.success("Modèle chargé avec succès!")
+            return model
         except Exception as e1:
             st.warning(f"Échec du chargement standard, tentative sans compilation...")
             try:
@@ -301,19 +331,28 @@ def load_classification_model():
                     loss='binary_crossentropy',
                     metrics=['accuracy']
                 )
+                st.success("Modèle chargé avec succès (sans compilation)!")
+                return model
             except Exception as e2:
-                st.error(f"Échec de toutes les méthodes de chargement")
-                import traceback
-                st.error(traceback.format_exc())
-                return None
-        
-        st.success("Modèle chargé avec succès!")
-        return model
+                st.error(f"Échec de toutes les méthodes de chargement du modèle téléchargé")
+                st.warning("🔄 Création d'un modèle de démonstration temporaire...")
+                st.info("⚠️ ATTENTION: Ce modèle n'est pas entraîné et donnera des résultats aléatoires!")
+                st.info("📝 Pour obtenir des prédictions réelles, veuillez uploader le modèle converti sur Hugging Face")
+                
+                # Créer un modèle de secours
+                fallback_model = create_fallback_model()
+                st.warning("✓ Modèle de démonstration créé (prédictions non fiables)")
+                return fallback_model
+                
     except Exception as e:
-        st.error(f"Erreur lors du chargement du modèle: {e}")
-        import traceback
-        st.error(traceback.format_exc())
-        return None
+        st.error(f"Erreur lors du téléchargement du modèle: {e}")
+        st.warning("🔄 Création d'un modèle de démonstration temporaire...")
+        st.info("⚠️ ATTENTION: Ce modèle n'est pas entraîné et donnera des résultats aléatoires!")
+        
+        # Créer un modèle de secours
+        fallback_model = create_fallback_model()
+        st.warning("✓ Modèle de démonstration créé (prédictions non fiables)")
+        return fallback_model
 
 
 try:
@@ -363,7 +402,7 @@ if uploaded_file is not None and model_loaded and model is not None:
             time.sleep(1)
             
             # prepare l'image pour la prédiction
-            img = image.load_img(uploaded_file, target_size=(128, 128))
+            img = image.load_img(uploaded_file, target_size=(224, 224))
             img_array = image.img_to_array(img) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
             
