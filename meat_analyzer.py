@@ -204,47 +204,20 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">Meat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Système d\'analyse avancé pour déterminer la fraîcheur de la viande</p>', unsafe_allow_html=True)
 
-# Fonction pour télécharger et charger le modèle
+# charge le modèle
 @st.cache_resource
-def download_and_load_model():
-    """Télécharge le modèle depuis Google Drive et le charge"""
-    # URL de votre modèle sur Google Drive
-    model_url = "https://drive.google.com/uc?export=download&id=1vdUbchh57RRHv0WI1NcOzQF1k6jVo4-J"
-    
-    # Vérifiez si le modèle existe déjà localement
-    local_model_path = 'meat_fresh_model.keras'
-    if os.path.exists(local_model_path):
-        return load_model(local_model_path)
-    
-    try:
-        # Créez un fichier temporaire pour télécharger le modèle
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.keras') as tmp_file:
-            st.info("Téléchargement du modèle en cours... Veuillez patienter.")
-            urllib.request.urlretrieve(model_url, tmp_file.name)
-            st.success("Modèle téléchargé avec succès!")
-            # Charger le modèle depuis le fichier temporaire
-            model = load_model(tmp_file.name)
-            return model
-    except Exception as e:
-        st.error(f"Erreur lors du téléchargement du modèle: {e}")
-        return None
+def load_classification_model():
+    return load_model('meat_fresh_model.keras')
 
-# Charger le modèle
-try:
-    model = download_and_load_model()
-    if model is None:
-        st.warning("Mode démonstration activé - le modèle n'a pas pu être chargé.")
-except Exception as e:
-    st.error(f"Erreur lors du chargement du modèle: {e}")
-    model = None
+model = load_classification_model()
 
-# section principale
+# sectionn principale
 st.markdown('<div class="container">', unsafe_allow_html=True)
 st.markdown("## Analysez votre échantillon de viande")
 st.markdown('<div class="instructions">', unsafe_allow_html=True)
 st.markdown("""
 #### Instructions:
-- Prenez une photo claire de votre échantillon de viande (boeuf, porc, poulet)
+- Prenez une photo claire de votre échantillon de viande (boeuf, porc)
 - Assurez-vous que l'image est la plus nette possible
 - Téléchargez l'image ci-dessous pour l'analyse
 """)
@@ -270,67 +243,54 @@ if uploaded_file is not None:
             time.sleep(1)
             
             # Prépare l'image pour la prédiction
-            try:
-                img = image.load_img(uploaded_file, target_size=(128, 128))
-                img_array = image.img_to_array(img) / 255.0
-                img_array = np.expand_dims(img_array, axis=0)
+            img = image.load_img(uploaded_file, target_size=(128, 128))
+            img_array = image.img_to_array(img) / 255.0
+            img_array = np.expand_dims(img_array, axis=0)
+            prediction = model.predict(img_array)
+            confidence = prediction[0][0]
+            
+            # Affichage du résultat avec une barre de confiance
+            is_spoiled = confidence >= 0.5
+            confidence_pct = confidence * 100 if is_spoiled else (1 - confidence) * 100
+            
+            if is_spoiled:
+                st.markdown('<div class="prediction-spoiled">⚠️ VIANDE AVARIÉE</div>', unsafe_allow_html=True)
+                bar_color = "#E74C3C"
+            else:
+                st.markdown('<div class="prediction-fresh">✅ VIANDE FRAÎCHE</div>', unsafe_allow_html=True)
+                bar_color = "#27AE60"
+            
+            st.markdown(f"### Niveau de confiance: {confidence_pct:.1f}%")
+            st.progress(float(confidence_pct/100))
+            
+            # Afficher des recommandations basées sur le résultat
+            if is_spoiled:
+                st.error("""
+                **Recommandation**: Cette viande présente des signes de détérioration et ne devrait pas être consommée.
                 
-                if model is not None:
-                    prediction = model.predict(img_array)
-                    confidence = prediction[0][0]
-                else:
-                    # Mode démo si le modèle n'est pas disponible
-                    import random
-                    confidence = random.uniform(0, 1)
+                Veuillez la jeter de manière appropriée pour éviter tout risque sanitaire.
+                """)
+            else:
+                st.success("""
+                **Recommandation**: Cette viande semble être fraîche et propre à la consommation.
                 
-                # Affichage du résultat avec une barre de confiance
-                is_spoiled = confidence >= 0.5
-                confidence_pct = confidence * 100 if is_spoiled else (1 - confidence) * 100
-                
-                if is_spoiled:
-                    st.markdown('<div class="prediction-spoiled">⚠️ VIANDE AVARIÉE</div>', unsafe_allow_html=True)
-                    bar_color = "#E74C3C"
-                else:
-                    st.markdown('<div class="prediction-fresh">✅ VIANDE FRAÎCHE</div>', unsafe_allow_html=True)
-                    bar_color = "#27AE60"
-                
-                st.markdown(f"### Niveau de confiance: {confidence_pct:.1f}%")
-                st.progress(float(confidence_pct/100))
-                
-                # Afficher des recommandations basées sur le résultat
-                if is_spoiled:
-                    st.error("""
-                    **Recommandation**: Cette viande présente des signes de détérioration et ne devrait pas être consommée.
-                    
-                    Veuillez la jeter de manière appropriée pour éviter tout risque sanitaire.
-                    """)
-                else:
-                    st.success("""
-                    **Recommandation**: Cette viande semble être fraîche et propre à la consommation.
-                    
-                    N'oubliez pas de la conserver correctement et de la cuisiner à une température adéquate.
-                    """)
-            except Exception as e:
-                st.error(f"Erreur lors de l'analyse: {e}")
+                N'oubliez pas de la conserver correctement et de la cuisiner à une température adéquate.
+                """)
 
 # infos complémentaires
 if not uploaded_file:
-    # exemple - CHANGEMENT DES CHEMINS LOCAUX VERS DES URLS
+    # exemple
     st.markdown("### Exemples de classification")
     
     col1, col2 = st.columns(2)
     with col1:
-        # Utiliser une URL au lieu d'un chemin local
-        st.image("https://media.istockphoto.com/id/173822190/photo/raw-meat.jpg?s=612x612&w=0&k=20&c=8cmFuCBsvGoErtTRp3NeGGRI9AM9l03aAfWJRhCnV-A=", 
-                 caption="Exemple: Viande fraîche",
-                 use_container_width=True)
+        st.image("C:\\Users\\UTGR0501\\Python_Pandas\\images_dataset_meat\\Fresh\\test_20171016_104321D.jpg", 
+                 caption="Exemple: Viande fraîche")
         st.success("Cette viande serait classifiée comme fraîche")
     
     with col2:
-        # Utiliser une URL au lieu d'un chemin local
-        st.image("https://media.istockphoto.com/id/183400092/photo/spoiled-meat.jpg?s=612x612&w=0&k=20&c=ZUkxbW9vqvsrCnJpMbQUJ9PBKuDdhWf_yyLQgCk39x0=", 
-                 caption="Exemple: Viande avariée",
-                 use_container_width=True)
+        st.image("C:\\Users\\UTGR0501\\Python_Pandas\\images_dataset_meat\\Spoiled\\test_20171019_030921D.jpg", 
+                 caption="Exemple: Viande avariée")
         st.error("Cette viande serait classifiée comme avariée")
 
 st.markdown('</div>', unsafe_allow_html=True)
