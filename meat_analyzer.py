@@ -24,34 +24,50 @@ st.markdown("""
         background-attachment: fixed;
     }
     
-    /* Supprimer TOUTES les barres blanches */
+    
     header[data-testid="stHeader"] {
         background-color: transparent !important;
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
     }
     
-    .main .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 2rem !important;
-    }
     
-    .st-emotion-cache-z5fcl4 {
+    .main > div:first-child {
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
     
-    .st-emotion-cache-18ni7ap {
+   
+    .st-emotion-cache-18ni7ap,
+    .st-emotion-cache-z5fcl4,
+    .css-18e3th9,
+    .css-1dp5vir,
+    div[data-testid="stDecoration"],
+    div[data-testid="stStatusWidget"],
+    #MainMenu,
+    footer,
+    .viewerBadge_container__1QSob {
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
     }
     
-    .css-18e3th9, .css-1dp5vir {
-        display: none !important;
+    .main .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 100% !important;
+    }
+    
+    /* Supprimer les marges en haut */
+    .block-container {
+        padding-top: 0rem !important;
     }
     
     /* ===== TITRE PRINCIPAL ===== */
     .main-title {
         text-align: center;
-        color: #FFFFFF;
+        color: #FFFFFF !important;
         font-size: 3.5rem;
         font-weight: 800;
         margin-bottom: 0.5rem;
@@ -64,9 +80,14 @@ st.markdown("""
         letter-spacing: 2px;
     }
     
+    /* Forcer le texte blanc pour tous les éléments dans main-title */
+    .main-title * {
+        color: #FFFFFF !important;
+    }
+    
     .subtitle {
         text-align: center;
-        color: #FFFFFF;
+        color: #FFFFFF !important;
         font-size: 1.4rem;
         font-weight: 600;
         margin-bottom: 2.5rem;
@@ -411,7 +432,7 @@ with st.sidebar:
     
     🔬 Chargez une image de viande pour obtenir une analyse instantanée.
             
-    💻 L'ensemble du code est disponible en open-source sur GitHub : https://github.com/gtom-pandas
+    💻 L'ensemble du code est disponible en open-source sur GitHub : https://github.com/gtom-pandas/meat-quality-dashboard
     """)
     
     st.markdown("### 🚀 Comment ça marche")
@@ -523,15 +544,23 @@ if not uploaded_file:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("https://github.com/gtom-pandas/meat-quality-dashboard/blob/main/examples/fresh_example.jpg", 
-                 caption="✅ Exemple: Viande fraîche",
-                 use_container_width=True) 
+      
+        try:
+            st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-dashboard/main/examples/fresh_example.jpg", 
+                     caption="✅ Exemple: Viande fraîche",
+                     use_container_width=True)
+        except:
+            st.info("📷 Image d'exemple de viande fraîche non disponible")
         st.success("✅ Cette viande serait classifiée comme **fraîche**")
     
     with col2:
-        st.image("https://github.com/gtom-pandas/meat-quality-dashboard/blob/main/examples/spoiled_example.jpg", 
-                 caption="⚠️ Exemple: Viande avariée",
-                 use_container_width=True)  
+       
+        try:
+            st.image("https://raw.githubusercontent.com/gtom-pandas/meat-quality-dashboard/main/examples/spoiled_example.jpg", 
+                     caption="⚠️ Exemple: Viande avariée",
+                     use_container_width=True)
+        except:
+            st.info("📷 Image d'exemple de viande avariée non disponible")
         st.error("⚠️ Cette viande serait classifiée comme **avariée**")
 
 st.markdown('</div>', unsafe_allow_html=True)
