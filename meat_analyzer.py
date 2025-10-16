@@ -416,9 +416,9 @@ with st.sidebar:
     
     st.markdown("### 🚀 Comment ça marche")
     st.markdown("""
-    1. 📤 **Téléchargez** une image de viande
-    2. 🤖 **Notre modèle d'IA** analyse l'image
-    3. ✅ **Recevez le résultat**: Fraîche ou Avariée
+    1.  **Téléchargez** une image de viande
+    2.  **Notre modèle d'IA** analyse l'image
+    3.  **Recevez le résultat**: Fraîche ou Avariée
     """)
     
     st.markdown("### 🛠️ Développé avec")
@@ -523,13 +523,13 @@ if not uploaded_file:
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image("https://i.imgur.com/EsSwBjC.jpg", 
+        st.image("https://github.com/gtom-pandas/meat-quality-dashboard/blob/main/examples/fresh_example.jpg", 
                  caption="✅ Exemple: Viande fraîche",
                  use_container_width=True) 
         st.success("✅ Cette viande serait classifiée comme **fraîche**")
     
     with col2:
-        st.image("https://i.imgur.com/yaSv0M0.jpg", 
+        st.image("https://github.com/gtom-pandas/meat-quality-dashboard/blob/main/examples/spoiled_example.jpg", 
                  caption="⚠️ Exemple: Viande avariée",
                  use_container_width=True)  
         st.error("⚠️ Cette viande serait classifiée comme **avariée**")
@@ -542,11 +542,11 @@ st.markdown("## 🧪 Comment reconnaître une viande avariée?")
 st.markdown("""
 La viande avariée peut présenter certains **signes distinctifs** à surveiller:
 
-1. 🎨 **Changement de couleur**: La viande devient grisâtre, brunâtre ou verdâtre
-2. 👃 **Odeur désagréable**: Une odeur aigre, acide ou putride
-3. ✋ **Texture visqueuse ou collante**: La surface devient glissante au toucher
-4. 🦠 **Moisissures**: Présence de taches de moisissure blanche, verte ou noire
-5. 📅 **Date de péremption dépassée**: Toujours vérifier la date limite de consommation
+1.  **Changement de couleur**: La viande devient grisâtre, brunâtre ou verdâtre
+2.  **Odeur désagréable**: Une odeur aigre, acide ou putride
+3.  **Texture visqueuse ou collante**: La surface devient glissante au toucher
+4.  **Moisissures**: Présence de taches de moisissure blanche, verte ou noire
+5.  **Date de péremption dépassée**: Toujours vérifier la date limite de consommation
 
 ⚠️ **En cas de doute, ne prenez aucun risque** : il vaut mieux jeter une viande douteuse que de risquer une intoxication alimentaire.
 """)
