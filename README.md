@@ -1,7 +1,8 @@
 # FreshMeat Analyzer
 
 Une application de deep learning qui permet de déterminer si une viande est fraîche ou avariée à partir d'une simple image.
-Dataset d'entrainement : 800 images pour le training et 200 pour la validation
+
+Dataset d'entrainement : 3300 images, pas de data augmentation
 
 ## Fonctionnalités
 - Classification binaire de viande (fraîche/avariée)
@@ -16,3 +17,4 @@ Dataset d'entrainement : 800 images pour le training et 200 pour la validation
 ## Auteur
 
 - gtom-pandas
+
